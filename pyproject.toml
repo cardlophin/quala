@@ -1,0 +1,28 @@
+[project]
+name = "quala"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "databricks>=0.2",
+    "databricks-connect>=18.3.1",
+    "databricks-sdk>=0.56.0",
+    "databricks-sql-connector>=4.3.0",
+    "dotenv>=0.9.9",
+    "faker>=40.27.0",
+    "fastapi>=0.138.2",
+    "google-genai>=2.10.0",
+    "ollama>=0.6.2",
+    "pydantic>=2.13.4",
+    "pyspark>=4.1.2",
+    "python-dotenv>=1.1.1",
+    "uvicorn[standard]>=0.34.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["quala*"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

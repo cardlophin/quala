@@ -1,0 +1,7 @@
+.env
+uv.lock
+__pycache__/
+design/rules/pipeline_output/
+quala.egg-info
+.venv
+*sqlite3*

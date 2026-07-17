@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 32" width="120" height="32">
+  <!--
+    Placeholder deliberado: no se encontro ningun archivo
+    "logo-databricks.svg" en la carpeta public/ del proyecto pese a lo
+    indicado, asi que este es un marcador temporal (geometria generica +
+    texto), NO el logo oficial de Databricks. Sustituir este archivo por el
+    asset real cuando este disponible -- el codigo ya referencia esta
+    misma ruta (/logo-databricks.svg), no hace falta tocar nada mas.
+  -->
+  <g fill="#1B1B1F">
+    <path d="M14 2 2 8l12 6 12-6-12-6Z" opacity="0.9" />
+    <path d="M2 15l12 6 12-6v3l-12 6-12-6v-3Z" opacity="0.6" />
+    <path d="M2 22l12 6 12-6v3l-12 6-12-6v-3Z" opacity="0.35" />
+  </g>
+  <text x="32" y="21" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" fill="#1B1B1F">
+    Databricks
+  </text>
+</svg>

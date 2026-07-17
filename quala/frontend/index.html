@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Aplica el tema persistido ANTES del primer pintado, para evitar
+      // el flash de tema incorrecto (FOUC) que se veia al recargar con
+      // modo oscuro activo: sin esto, React monta primero en claro (los
+      // valores por defecto de :root) y solo cambia a .dark despues de
+      // hidratar el store de Zustand, un frame o dos mas tarde.
+      (function () {
+        try {
+          var raw = localStorage.getItem("quala-theme");
+          var theme = raw ? JSON.parse(raw).state.theme : "system";
+          var resolved =
+            theme === "system"
+              ? window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light"
+              : theme;
+          if (resolved === "dark") {
+            document.documentElement.classList.add("dark");
+          }
+        } catch (e) {
+          /* localStorage no disponible o JSON invalido: se queda en claro */
+        }
+      })();
+    </script>
+    <link rel="icon" type="image/png" href="/logo-quala.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="description" content="Quala: conecta Databricks, genera datos sinteticos y valida pipelines contra reglas de negocio." />
+    <meta property="og:title" content="Quala" />
+    <meta property="og:description" content="Genera datos sinteticos y valida pipelines de Databricks contra reglas de negocio." />
+    <title>Quala</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+version: 2
+
+# Fuentes del pipeline (ajusta catalog/schema a tu workspace).
+sources:
+  - name: quala
+    catalog: workspace
+    schema: dq_demo
+    tables:
+      - name: clientes        # fuente REAL (validada en el nodo de origen)
+  - name: quala_sandbox
+    catalog: workspace
+    schema: sandbox
+    tables:
+      - name: pedidos_sinteticos   # salida del nodo "Generar datos sintéticos"

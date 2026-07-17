@@ -1,0 +1,267 @@
+{
+  "version": "1.0",
+  "needs_clarification": false,
+  "clarifications": [],
+  "assumptions": [
+    "order_date en la tabla orders usa el generador parent_field_ref sobre registration_date del cliente vinculado (mismo customer_id que selecciono el campo foreign_key anterior), con un desplazamiento aleatorio de 0 a 400 dias. Esto garantiza order_date >= registration_date por diseno estructural, no por aproximacion de rango absoluto."
+  ],
+  "input_summary": {
+    "domain": "e-commerce de moda",
+    "description": "Generacion de clientes y pedidos con dependencias de integridad, calculos de importes y fechas relativas, incluyendo una relacion cross-table real (order_date >= registration_date) resuelta con parent_field_ref.",
+    "notes": [
+      "Se requiere correlacion de pais y ciudad para clientes.",
+      "Se requiere calculo exacto de total_amount como unit_price * quantity.",
+      "Se requiere shipped_date opcional y posterior a order_date.",
+      "Se requiere order_date siempre posterior o igual a registration_date del cliente."
+    ]
+  },
+  "catalogs": [
+    {
+      "name": "geo_catalog",
+      "description": "Catalogo de paises y ciudades correlacionadas de Europa",
+      "entries": [
+        { "country": "Espana", "city": "Madrid" },
+        { "country": "Espana", "city": "Barcelona" },
+        { "country": "Francia", "city": "Paris" },
+        { "country": "Italia", "city": "Milan" },
+        { "country": "Portugal", "city": "Lisboa" }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "name": "customers",
+      "description": "Tabla de clientes de la tienda de moda",
+      "row_count": 30,
+      "fields": [
+        {
+          "name": "customer_id",
+          "logical_type": "string",
+          "nullable": false,
+          "generator": { "type": "sequence", "config": { "prefix": "CUST-", "start": 1, "step": 1, "padding": 4 } },
+          "constraints": [
+            { "type": "unique", "config": {}, "scope": "field" },
+            { "type": "not_null", "config": {}, "scope": "field" }
+          ]
+        },
+        {
+          "name": "first_name",
+          "logical_type": "string",
+          "nullable": false,
+          "generator": { "type": "faker", "config": { "provider": "first_name", "locale": "es_ES" } },
+          "constraints": [{ "type": "not_null", "config": {}, "scope": "field" }]
+        },
+        {
+          "name": "last_name",
+          "logical_type": "string",
+          "nullable": false,
+          "generator": { "type": "faker", "config": { "provider": "last_name", "locale": "es_ES" } },
+          "constraints": [{ "type": "not_null", "config": {}, "scope": "field" }]
+        },
+        {
+          "name": "email",
+          "logical_type": "string",
+          "nullable": false,
+          "generator": {
+            "type": "template",
+            "config": {
+              "template": "{first_name}.{last_name}@{domain}",
+              "transforms": ["lowercase", "strip_accents", "remove_spaces"],
+              "uniqueness_strategy": "numeric_suffix_on_collision",
+              "extra": { "domain": "fashionshop.com" }
+            }
+          },
+          "constraints": [
+            { "type": "unique", "config": {}, "scope": "field" },
+            { "type": "not_null", "config": {}, "scope": "field" }
+          ]
+        },
+        {
+          "name": "country",
+          "logical_type": "string",
+          "nullable": false,
+          "generator": { "type": "linked_fields", "config": { "catalog": "geo_catalog", "key": "country" } },
+          "constraints": [{ "type": "not_null", "config": {}, "scope": "field" }]
+        },
+        {
+          "name": "city",
+          "logical_type": "string",
+          "nullable": false,
+          "generator": { "type": "linked_fields", "config": { "catalog": "geo_catalog", "key": "city" } },
+          "constraints": [{ "type": "not_null", "config": {}, "scope": "field" }]
+        },
+        {
+          "name": "registration_date",
+          "logical_type": "date",
+          "nullable": false,
+          "generator": { "type": "date_range", "config": { "start": "2021-01-01", "end": "2026-07-01", "as_type": "date" } },
+          "constraints": [{ "type": "not_null", "config": {}, "scope": "field" }]
+        }
+      ],
+      "depends_on": []
+    },
+    {
+      "name": "orders",
+      "description": "Tabla de pedidos realizados por los clientes",
+      "row_count": 150,
+      "fields": [
+        {
+          "name": "order_id",
+          "logical_type": "string",
+          "nullable": false,
+          "generator": { "type": "uuid", "config": {} },
+          "constraints": [
+            { "type": "unique", "config": {}, "scope": "field" },
+            { "type": "not_null", "config": {}, "scope": "field" }
+          ]
+        },
+        {
+          "name": "customer_id",
+          "logical_type": "string",
+          "nullable": false,
+          "generator": {
+            "type": "foreign_key",
+            "config": { "parent_table": "customers", "parent_field": "customer_id", "strategy": "random" }
+          },
+          "constraints": [
+            { "type": "not_null", "config": {}, "scope": "field" },
+            {
+              "type": "foreign_key_exists",
+              "config": { "parent_table": "customers", "parent_field": "customer_id" },
+              "scope": "field"
+            }
+          ]
+        },
+        {
+          "name": "order_date",
+          "logical_type": "date",
+          "nullable": false,
+          "generator": {
+            "type": "parent_field_ref",
+            "config": {
+              "parent_table": "customers",
+              "parent_field": "registration_date",
+              "mode": "date_offset",
+              "min_days": 0,
+              "max_days": 400,
+              "as_type": "date"
+            }
+          },
+          "constraints": [{ "type": "not_null", "config": {}, "scope": "field" }]
+        },
+        {
+          "name": "__shipped_date_full",
+          "logical_type": "date",
+          "nullable": false,
+          "generator": {
+            "type": "date_range",
+            "config": { "start_field": "order_date", "min_offset_days": 1, "max_offset_days": 10, "as_type": "date" }
+          },
+          "constraints": []
+        },
+        {
+          "name": "shipped_date",
+          "logical_type": "date",
+          "nullable": true,
+          "generator": { "type": "nullability", "config": { "null_probability": 0.3, "source_field": "__shipped_date_full" } },
+          "constraints": [
+            {
+              "type": "start_before_end",
+              "config": { "start_field": "order_date", "end_field": "shipped_date" },
+              "scope": "row"
+            }
+          ]
+        },
+        {
+          "name": "unit_price",
+          "logical_type": "float",
+          "nullable": false,
+          "generator": { "type": "numeric_range", "config": { "min": 15.0, "max": 250.0, "as_type": "float" } },
+          "constraints": [
+            { "type": "not_null", "config": {}, "scope": "field" },
+            { "type": "min_max", "config": { "min": 15.0, "max": 250.0 }, "scope": "field" }
+          ]
+        },
+        {
+          "name": "quantity",
+          "logical_type": "integer",
+          "nullable": false,
+          "generator": { "type": "numeric_range", "config": { "min": 1, "max": 5, "as_type": "int" } },
+          "constraints": [
+            { "type": "not_null", "config": {}, "scope": "field" },
+            { "type": "min_max", "config": { "min": 1, "max": 5 }, "scope": "field" }
+          ]
+        },
+        {
+          "name": "total_amount",
+          "logical_type": "float",
+          "nullable": false,
+          "generator": { "type": "formula", "config": { "expression": "unit_price * quantity" } },
+          "constraints": [
+            { "type": "not_null", "config": {}, "scope": "field" },
+            { "type": "formula_match", "config": { "expression": "unit_price * quantity" }, "scope": "row" }
+          ]
+        },
+        {
+          "name": "status",
+          "logical_type": "string",
+          "nullable": false,
+          "generator": {
+            "type": "enum",
+            "config": {
+              "values": ["pending", "shipped", "delivered", "cancelled"],
+              "weights": [0.15, 0.2, 0.6, 0.05]
+            }
+          },
+          "constraints": [
+            { "type": "not_null", "config": {}, "scope": "field" },
+            {
+              "type": "allowed_values",
+              "config": { "values": ["pending", "shipped", "delivered", "cancelled"] },
+              "scope": "field"
+            }
+          ]
+        }
+      ],
+      "depends_on": ["customers"]
+    }
+  ],
+  "runner": {
+    "seed": 42,
+    "locale": "es_ES",
+    "execution_order": ["customers", "orders"],
+    "output_modes": { "formats": ["csv", "json"], "include_invalid": true },
+    "batching": { "enabled": false, "batch_size": 1000 },
+    "post_processing": [],
+    "validation_checks": []
+  },
+  "edge_cases": {
+    "enabled": true,
+    "cases": [
+      {
+        "name": "incorrect_total_amount",
+        "type": "out_of_range",
+        "target_table": "orders",
+        "target_field": "total_amount",
+        "probability": 0.05,
+        "config": { "min": 1000.0, "max": 5000.0 }
+      },
+      {
+        "name": "broken_customer_email",
+        "type": "replace_domain",
+        "target_table": "customers",
+        "target_field": "email",
+        "probability": 0.05,
+        "config": { "domain": "invalid-domain-format" }
+      },
+      {
+        "name": "shipped_date_before_order_date",
+        "type": "out_of_range",
+        "target_table": "orders",
+        "target_field": "__shipped_date_full",
+        "probability": 0.05,
+        "config": { "min": "2019-01-01", "max": "2020-12-31" }
+      }
+    ]
+  }
+}

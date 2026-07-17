@@ -1,0 +1,312 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Estados semanticos custom (patron shadcn con @theme inline) */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  /* Azul pastel de marca (logo): identidad, NO color funcional. */
+  --color-brand: var(--brand);
+
+  /* Acentos por tipo de nodo en el canvas de grafo (ver nodes/*.tsx). */
+  --color-category-data: var(--category-data);
+  --color-category-pipeline: var(--category-pipeline);
+
+  /* Identidad de color por tipo de nodo (distinta de category-data/
+     category-pipeline de arriba, ver node-identity.ts). */
+  --color-node-data-source: var(--node-data-source);
+  --color-node-data-source-foreground: var(--node-data-source-foreground);
+  --color-node-synthetic: var(--node-synthetic);
+  --color-node-synthetic-foreground: var(--node-synthetic-foreground);
+  --color-node-pipeline: var(--node-pipeline);
+  --color-node-pipeline-foreground: var(--node-pipeline-foreground);
+  --color-node-validation: var(--node-validation);
+  --color-node-validation-foreground: var(--node-validation-foreground);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/*
+  Sistema de color — notas de contraste (WCAG 2.1, verificado
+  programaticamente convirtiendo oklch -> sRGB lineal -> luminancia
+  relativa; no a ojo) y de intencion de marca vs. funcion:
+
+  - --brand es el azul pastel del logo (oklch(0.75 0.08 235)). Es
+    identidad de marca, no un color funcional: se usa en el isotipo, el
+    favicon, el wordmark, y como fondo TRANSLUCIDO de acentos neutros
+    (estado activo del sidebar, card seleccionada, hover, badges
+    informativos). Nunca como color solido de boton ni de icono
+    aislado sobre blanco — a esa luminosidad (0.75) no pasa contraste
+    AA en trazos finos (2.19:1 contra blanco, muy por debajo del 3:1
+    minimo para iconos con significado).
+  - --primary es un violeta/indigo (oklch(0.54 0.15 280)), DELIBERADAMENTE
+    fuera de la familia de azules del logo, para que la UI no dependa de
+    un unico tono. Es el color de accion: botones primarios, links,
+    focus rings, chart-1 (serie principal de graficos). Contraste con
+    texto blanco: 5.14:1 (pasa AA texto normal). Contraste como relleno
+    de boton sobre fondo oscuro: 3.55:1 (pasa AA componentes no-texto).
+  - --category-data (teal, oklch(0.6 0.1 190)) y --category-pipeline
+    (el mismo violeta de --primary) distinguen visualmente los dos tipos
+    de proyecto (validacion de datos vs. validacion de pipelines) en
+    iconos, badges y acentos de card — la logica de "color por
+    categoria" que ya se usaba en los iconos de ProjectCard se extiende
+    aqui a un token reutilizable.
+  - --success/--warning/--destructive mantienen sus tonos verde/amber/
+    rojo (hues 155/80/25) para no competir con el violeta de --primary:
+    estan bien separados en el circulo de tono (25, 80, 155, 190, 280),
+    ninguno cerca del otro.
+  - --card se separa de --background (oklch(0.97 0.01 235) vs
+    oklch(1 0 0)) para que las cards se despeguen del fondo en vez de
+    fundirse con el (diferencia de superficie, no de texto/fondo).
+  - --success y --destructive llevan L 0.52 (no 0.62) para que su texto
+    blanco pase 4.5:1 (dan 5.10:1 y 5.81:1). --warning ya pasaba con
+    texto oscuro (8.15:1) y no se toco.
+  - Texto de alto enfasis (titulos, valores numericos como el score de
+    calidad) usa --foreground, nunca --primary ni --brand.
+*/
+
+:root {
+  --radius: 0.75rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.22 0.03 235);
+
+  --card: oklch(0.97 0.01 235);
+  --card-foreground: oklch(0.22 0.03 235);
+  --popover: oklch(0.97 0.01 235);
+  --popover-foreground: oklch(0.22 0.03 235);
+
+  /* Violeta de accion, fuera de la familia de azules del logo. */
+  --primary: oklch(0.54 0.15 280);
+  --primary-foreground: oklch(0.99 0 0);
+
+  /* Pastel de marca (logo): identidad, no funcional. */
+  --brand: oklch(0.75 0.08 235);
+
+  /* Acentos por tipo de nodo en el canvas de grafo (ver seccion 6 del
+     refactor a React Flow): category-data = teal, para el nodo
+     "Pipeline"; category-pipeline = indigo (hue distinto de --primary
+     para que sean distinguibles a simple vista) para el nodo "Generar
+     datos sinteticos". El nodo "Fuente de datos" usa --brand y el nodo
+     "Validacion" usa --primary directamente (es el nodo mas critico). */
+  --category-data: oklch(0.6 0.1 190);
+  --category-pipeline: oklch(0.54 0.15 255);
+
+  /* Identidad de color por tipo de nodo en el canvas (distinta de
+     category-data/category-pipeline de arriba, que ya no se usan para
+     esto): cada tipo tiene un hue propio y marcado para que el grafo sea
+     legible sin leer el titulo de cada nodo. Foregrounds a L=0.15 (mismo
+     hue, C bajo) verificados programaticamente >=5.1:1 contra cada fondo
+     (el peor caso, "synthetic", da 5.56:1; el resto entre 6 y 7.7:1). */
+  --node-data-source: oklch(0.68 0.11 195);
+  --node-data-source-foreground: oklch(0.15 0.03 195);
+  --node-synthetic: oklch(0.62 0.14 235);
+  --node-synthetic-foreground: oklch(0.15 0.03 235);
+  --node-pipeline: oklch(0.68 0.16 55);
+  --node-pipeline-foreground: oklch(0.15 0.03 55);
+  --node-validation: oklch(0.75 0.12 145);
+  --node-validation-foreground: oklch(0.15 0.03 145);
+
+  --secondary: oklch(0.96 0.01 235);
+  --secondary-foreground: oklch(0.22 0.03 235);
+  --muted: oklch(0.96 0.01 235);
+  --muted-foreground: oklch(0.47 0.02 235);
+  --accent: oklch(0.93 0.03 235);
+  --accent-foreground: oklch(0.22 0.03 235);
+
+  --destructive: oklch(0.52 0.16 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --success: oklch(0.52 0.1 155);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.78 0.13 80);
+  --warning-foreground: oklch(0.24 0.05 80);
+
+  --border: oklch(0.9 0.015 235);
+  --input: oklch(0.9 0.015 235);
+  --ring: oklch(0.54 0.15 280);
+
+  --chart-1: oklch(0.54 0.15 280);
+  --chart-2: oklch(0.52 0.1 155);
+  --chart-3: oklch(0.78 0.13 80);
+  --chart-4: oklch(0.52 0.16 25);
+  --chart-5: oklch(0.6 0.1 190);
+
+  --sidebar: oklch(0.97 0.01 235);
+  --sidebar-foreground: oklch(0.22 0.03 235);
+  --sidebar-primary: oklch(0.54 0.15 280);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.93 0.03 235);
+  --sidebar-accent-foreground: oklch(0.22 0.03 235);
+  --sidebar-border: oklch(0.9 0.015 235);
+  --sidebar-ring: oklch(0.54 0.15 280);
+}
+
+.dark {
+  --background: oklch(0.18 0.02 235);
+  --foreground: oklch(0.96 0.01 235);
+
+  --card: oklch(0.23 0.02 235);
+  --card-foreground: oklch(0.96 0.01 235);
+  --popover: oklch(0.23 0.02 235);
+  --popover-foreground: oklch(0.96 0.01 235);
+
+  /* Mismo violeta que en claro: 5.14:1 con texto blanco y 3.55:1 contra
+     el fondo oscuro (ambos pasan AA). */
+  --primary: oklch(0.54 0.15 280);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --brand: oklch(0.75 0.08 235);
+
+  --category-data: oklch(0.65 0.1 190);
+  --category-pipeline: oklch(0.6 0.15 255);
+
+  /* Mismos hues que en claro, L subida ~0.05 (igual que category-data/
+     category-pipeline arriba) para que respiren mejor sobre fondo oscuro;
+     el foreground se queda igual de oscuro (L=0.15), el contraste solo
+     mejora al subir el fondo (5.98:1 el peor caso, "synthetic"). */
+  --node-data-source: oklch(0.72 0.11 195);
+  --node-data-source-foreground: oklch(0.15 0.03 195);
+  --node-synthetic: oklch(0.66 0.14 235);
+  --node-synthetic-foreground: oklch(0.15 0.03 235);
+  --node-pipeline: oklch(0.72 0.16 55);
+  --node-pipeline-foreground: oklch(0.15 0.03 55);
+  --node-validation: oklch(0.78 0.12 145);
+  --node-validation-foreground: oklch(0.15 0.03 145);
+
+  --secondary: oklch(0.27 0.02 235);
+  --secondary-foreground: oklch(0.96 0.01 235);
+  --muted: oklch(0.27 0.02 235);
+  --muted-foreground: oklch(0.72 0.02 235);
+  --accent: oklch(0.3 0.03 235);
+  --accent-foreground: oklch(0.96 0.01 235);
+
+  --destructive: oklch(0.66 0.15 25);
+  --destructive-foreground: oklch(0.18 0.02 235);
+
+  --success: oklch(0.68 0.09 155);
+  --success-foreground: oklch(0.18 0.02 235);
+  --warning: oklch(0.78 0.12 80);
+  --warning-foreground: oklch(0.2 0.04 80);
+
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.6 0.15 280);
+
+  --chart-1: oklch(0.6 0.15 280);
+  --chart-2: oklch(0.68 0.09 155);
+  --chart-3: oklch(0.78 0.12 80);
+  --chart-4: oklch(0.66 0.15 25);
+  --chart-5: oklch(0.65 0.1 190);
+
+  --sidebar: oklch(0.21 0.02 235);
+  --sidebar-foreground: oklch(0.96 0.01 235);
+  --sidebar-primary: oklch(0.6 0.15 280);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.3 0.03 235);
+  --sidebar-accent-foreground: oklch(0.96 0.01 235);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.6 0.15 280);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+/*
+  Tema del canvas de React Flow (@xyflow/react): se remapean sus variables
+  CSS nativas (--xy-*) a nuestros tokens semanticos en vez de dejar los
+  colores por defecto de la libreria (que son claros fijos y romperian el
+  modo oscuro). Con esto el fondo de puntos, los controles y el minimapa
+  siguen el tema activo automaticamente, igual que el resto de la app.
+*/
+.react-flow {
+  --xy-background-color: var(--color-background);
+  --xy-background-pattern-color: var(--color-border);
+  --xy-edge-stroke: var(--color-muted-foreground);
+  --xy-edge-stroke-selected: var(--color-primary);
+  --xy-edge-label-background-color: var(--color-card);
+  --xy-edge-label-color: var(--color-foreground);
+  --xy-connectionline-stroke: var(--color-primary);
+  --xy-node-background-color: var(--color-card);
+  --xy-node-color: var(--color-card-foreground);
+  --xy-node-border: 1px solid var(--color-border);
+  --xy-node-boxshadow-selected: 0 0 0 2px var(--color-ring);
+  --xy-handle-background-color: var(--color-primary);
+  --xy-handle-border-color: var(--color-background);
+  --xy-selection-background-color: color-mix(in oklch, var(--color-primary) 12%, transparent);
+  --xy-selection-border: 1px dashed var(--color-primary);
+  --xy-controls-button-background-color: var(--color-card);
+  --xy-controls-button-background-color-hover: var(--color-accent);
+  --xy-controls-button-color: var(--color-foreground);
+  --xy-controls-button-color-hover: var(--color-foreground);
+  --xy-controls-button-border-color: var(--color-border);
+  --xy-minimap-background-color: var(--color-card);
+  --xy-minimap-mask-background-color: color-mix(in oklch, var(--color-foreground) 8%, transparent);
+  --xy-minimap-node-background-color: var(--color-muted);
+  --xy-attribution-background-color: transparent;
+}
+
+/*
+  Handles "tipados": cuando se pasa la prop `isValidConnection` a
+  <ReactFlow>, la libreria ya anade sola las clases `connectingto` y
+  `valid` al handle de destino mientras se arrastra una conexion (ver
+  HandleComponent en @xyflow/react) -- no hace falta rastrear el drag a
+  mano con onConnectStart/onConnectEnd, solo darle estilo a esas clases.
+*/
+.react-flow__handle.connectingto.valid {
+  background: var(--color-success) !important;
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--color-success) 30%, transparent);
+}
+.react-flow__handle.connectingto:not(.valid) {
+  background: var(--color-destructive) !important;
+  opacity: 0.35;
+}
