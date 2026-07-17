@@ -1,4 +1,4 @@
-# Quala
+# `quala`
 
 Quala es una plataforma de **calidad y generación de datos sobre Databricks**,
 con una interfaz de **canvas de grafo estilo n8n** donde compones un flujo
